@@ -22,7 +22,7 @@ namespace BookHelper
         public int HowManyPagesLeft()
         {
             // TODO 3: Improve/fix the code here.
-            var readPages = 0;
+            /*var readPages = 0;
             for (var page = 1; page <= PagesCount; page++)
             {
                 foreach (var range in _readPages)
@@ -32,10 +32,16 @@ namespace BookHelper
                         readPages++;
                     }
                 }
-            }
+            }*/
 
-            var leftPages = PagesCount - readPages;
-            return leftPages;
+
+            // 
+            var readPages = 0;
+            foreach (var range in _readPages) readPages += range.To - range.From + 1;
+            return PagesCount - readPages;
+
+            //var leftPages = PagesCount - readPages;
+            //return leftPages;
         }
     }
 }

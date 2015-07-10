@@ -197,6 +197,39 @@ namespace Cashbox.Tests.Services
 
         // TODO 6: Write test to check that account balance is correctly updated after purchase. Fix code if test fails.
 
+        [Test]
+        public void Balance_When_purchase_products_Then_balance_is_correctly_updated()
+        {
+            // Arrange
+            var balance1 = new Account { Id = 1,  Name = "YYY", Balance = 100 };
+            var balance2 = new Account { Id = 2, Name = "YY", Balance = 10 };
+            var balance3 = new Account { Id = 3, Name = "Y", Balance = 101 };
+
+            var productBalance = A.Fake<IRepository<Account>>();
+            A.CallTo(() => productBalance.Query()).Returns(new[] { balance1, balance2, balance3 }.AsQueryable());
+
+            var account = new Account { Id = 1, Balance = 101 };
+
+            var accountRepository = A.Fake<IRepository<Account>>();
+            A.CallTo(() => accountRepository.Get(A<int>._)).Returns(account);
+
+            var unitOfWork = A.Fake<IUnitOfWork>();
+            A.CallTo(() => unitOfWork.Repository<Account>()).Returns(productBalance);
+            A.CallTo(() => unitOfWork.Repository<Account>()).Returns(accountRepository);
+
+            var unitOfWorkFactory = A.Fake<IUnitOfWorkFactory>();
+            A.CallTo(() => unitOfWorkFactory.Create()).Returns(unitOfWork);
+
+            var service = new PurchaseService(unitOfWorkFactory);
+
+            // Act
+            service.Purchase(account.Id, new[] { balance1.Id, balance2.Id }, balance1.Balance + balance2.Balance);
+
+            // Assert
+            Assert.That(balance1.Balance, Is.EqualTo(102));
+            Assert.That(balance2.Balance, Is.EqualTo(11));
+        }
+
         // TODO 7: Write test to check that account can't buy product if it's amount is 0. Purchase should throw an exception. Fix code if test fails.
     }
 }
